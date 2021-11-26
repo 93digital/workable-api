@@ -1,6 +1,6 @@
 # Nine3 Workable API Class
 
-**_v1.0_**
+**_v1.0.1_**
 
 **_Authors:_** _Ahmad Al Asadi & Matt Knight_
 

@@ -10,7 +10,7 @@
  *
  * @package WordPress
  * @author 93digital <info@93digital.co.uk>
- * @version 1.0
+ * @version 1.0.1
  * @see https://workable.readme.io/docs
  */
 
@@ -49,7 +49,7 @@ class Nine3_Workable_Api {
 	 * @param string $api_access_token A generated API Access Token from the Workable account.
 	 */
 	public function __construct( $api_subdomain, $api_access_token ) {
-    if ( empty( $api_subdomain ) || empty( $_api_access_token ) ) {
+    if ( empty( $api_subdomain ) || empty( $api_access_token ) ) {
 			// Do nothing if the subdomain or access token are empty.
 			return;
 		}
