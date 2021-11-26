@@ -10,7 +10,7 @@
  *
  * @package WordPress
  * @author 93digital <info@93digital.co.uk>
- * @version 0.1
+ * @version 1.0
  * @see https://workable.readme.io/docs
  */
 
@@ -49,6 +49,11 @@ class Nine3_Workable_Api {
 	 * @param string $api_access_token A generated API Access Token from the Workable account.
 	 */
 	public function __construct( $api_subdomain, $api_access_token ) {
+    if ( empty( $api_subdomain ) || empty( $_api_access_token ) ) {
+			// Do nothing if the subdomain or access token are empty.
+			return;
+		}
+
 		$this->_api_url          = 'https://' . $api_subdomain . '.workable.com/spi/v3';
 		$this->_api_access_token = $api_access_token;
 
@@ -125,11 +130,7 @@ class Nine3_Workable_Api {
 				'Authorization' => 'Bearer ' . $this->_api_access_token,
 			),
 		);
-
 		$api_response = wp_remote_get( $this->_api_url . $api_endpoint, $auth_params );
-		// if ( is_wp_error( $api_response ) ) {
-		// 	return false;
-		// }
 		
 		// Parse the JSON response.
 		$response_body = wp_remote_retrieve_body( $api_response );
