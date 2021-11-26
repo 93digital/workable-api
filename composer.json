@@ -1,0 +1,15 @@
+
+{
+	"name": "93devs/nine3-workable-api",
+	"license": "MIT",
+	"version": "master",
+	"minimum-stability": "dev",
+	"autoload": {
+		"classmap": [
+			"class-nine3-workable-api.php"
+		],
+		"exclude-from-classmap": [
+			"phpcs.xml"
+		]
+	}
+}
