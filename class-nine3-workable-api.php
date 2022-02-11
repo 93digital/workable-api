@@ -49,7 +49,7 @@ class Nine3_Workable_Api {
 	 * @param string $api_access_token A generated API Access Token from the Workable account.
 	 */
 	public function __construct( $api_subdomain, $api_access_token ) {
-    if ( empty( $api_subdomain ) || empty( $api_access_token ) ) {
+		if ( empty( $api_subdomain ) || empty( $api_access_token ) ) {
 			// Do nothing if the subdomain or access token are empty.
 			return;
 		}
@@ -82,29 +82,38 @@ class Nine3_Workable_Api {
 	 * @return array $vacancies List of custom mapped vacancies.
 	 */
 	public function fetch_vacancies( $return = false ) {
-		// API request for a list of published vacancies.
-		$response = $this->api_request( '/jobs?state=published' );
-		if ( $response === false ) {
-			// Erroneous API call or no data returned to bail out!
-			return false;
+		// API request for a list of published vacancies with pagination.
+		$request_url   = '/jobs?state=published&limit=100';
+		$full_response = array();
+		$paging        = true;
+		while ( $paging ) {
+			$response = $this->api_request( $request_url );
+			if ( array_key_exists( 'jobs', $response ) ) {
+				$full_response = array_merge( $full_response, $response['jobs'] );
+			}
+			// If paging is part of the response, get and change the request url.
+			if ( isset( $response['paging'] ) && isset( $response['paging']['next'] ) ) {
+				$paging_next_url = $response['paging']['next'];
+				$request_url     = substr( $paging_next_url, strpos( $paging_next_url, '/v3' ) + 3 );
+			} else {
+				$paging = false;
+			}
 		}
 
 		// Loop through the response and map the available vacancies to an array.
 		$vacancies = array();
-		if ( array_key_exists( 'jobs', $response ) ) {
-			foreach ( $response['jobs'] as $vacancy ) {
-				// Another API request must be made to the single vacancy to retrieve it's description.
-				$single_response = $this->api_request( '/jobs/' . $vacancy['shortcode'] );
+		foreach ( $full_response as $vacancy ) {
+			// Another API request must be made to the single vacancy to retrieve it's description.
+			$single_response = $this->api_request( '/jobs/' . $vacancy['shortcode'] );
 
-				// Grab the description from the single vacancy request, or default to an empty string.
-				if ( ! empty( $single_response ) && isset( $single_response['full_description'] ) ) {
-					$vacancy['full_description'] = $single_response['full_description'];
-				} else {
-					$vacancy['full_description'] = '';
-				}
-
-				$vacancies[] = $vacancy;
+			// Grab the description from the single vacancy request, or default to an empty string.
+			if ( ! empty( $single_response ) && isset( $single_response['full_description'] ) ) {
+				$vacancy['full_description'] = $single_response['full_description'];
+			} else {
+				$vacancy['full_description'] = '';
 			}
+
+			$vacancies[] = $vacancy;
 		}
 
 		// Set transient.
@@ -130,8 +139,9 @@ class Nine3_Workable_Api {
 				'Authorization' => 'Bearer ' . $this->_api_access_token,
 			),
 		);
+
 		$api_response = wp_remote_get( $this->_api_url . $api_endpoint, $auth_params );
-		
+
 		// Parse the JSON response.
 		$response_body = wp_remote_retrieve_body( $api_response );
 		$json_response = json_decode( $response_body, true );
