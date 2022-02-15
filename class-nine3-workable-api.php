@@ -106,11 +106,18 @@ class Nine3_Workable_Api {
 			// Another API request must be made to the single vacancy to retrieve it's description.
 			$single_response = $this->api_request( '/jobs/' . $vacancy['shortcode'] );
 
-			// Grab the description from the single vacancy request, or default to an empty string.
+			// Grab the full description from the single vacancy request, or default to an empty string.
 			if ( ! empty( $single_response ) && isset( $single_response['full_description'] ) ) {
 				$vacancy['full_description'] = $single_response['full_description'];
 			} else {
 				$vacancy['full_description'] = '';
+			}
+
+			// Grab the employment type from the single vacancy request, or default to an empty string.
+			if ( ! empty( $single_response ) && isset( $single_response['employment_type'] ) ) {
+				$vacancy['employment_type'] = $single_response['employment_type'];
+			} else {
+				$vacancy['employment_type'] = '';
 			}
 
 			$vacancies[] = $vacancy;
